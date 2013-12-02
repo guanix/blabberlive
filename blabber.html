@@ -1,0 +1,71 @@
+<head>
+  <title>Blabber</title>
+  <meta name="viewport" content="initial-scale=1">
+</head>
+
+<template name="home">
+<h1>Blabber</h1>
+
+<p>
+  Keep up to date with the latest discussion
+  on Blabber. Only threads with activity within the last month are shown.
+  Consider using a
+  <a href="https://www.mail-archive.com/blabber@list.hackmanhattan.com/">different</a>
+  <a href="https://list.hackmanhattan.com/pipermail/blabber/">archive</a> to find
+  older stuff. You can also <a href="https://list.hackmanhattan.com/listinfo/blabber">subscribe to emails</a>.
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Latest From</th>
+<th></th>
+<th>Thread</th>
+</tr>
+</thead>
+<tbody>
+  {{#each threads}}
+  <tr>
+    <td class="date">{{formatDate threadLastDate}}</td>
+    <td class="from" title="{{threadLastMessage.fromEmail}}">{{threadLastMessage.fromName}}</td>
+    <td class="threadCount">[{{threadCount children}}]</td>
+    <td><div class="subject"><a href="{{pathFor 'thread'}}">{{subject}}</a></div></td>
+  </tr>
+  {{/each}}
+</tbody>
+</table>
+
+</template>
+
+<template name="thread">
+<h2>{{parentMessage.subject}}</h2>
+<p>(<a href="{{pathFor 'home'}}">back</a>)</p>
+{{#each messages}}
+  {{> message}}
+{{/each}}
+</template>
+
+<template name="message">
+<div class="messageHeader">
+  From: <span title="{{fromEmail}}">{{fromName}}</span><br>
+  Date: {{formatLongDate receivedDate}} <a class="viewSourceLink" href="{{pathFor   'source' _id=_id}}">source</a>
+</div>
+  {{#if flags.bodyParseError}}
+    <p>Body parse error:</p>
+    <pre class="rfc822">{{source}}</pre>
+  {{else}}
+    {{#if flags.replyParseError}}<div class="replyParseError">(could not parse replies)</div>{{/if}}
+    {{#if parent}}
+      <div class="emailReplyMarked">{{{marked emailReplyParsed}}}</div>
+    {{else}}
+      <div class="emailReplyMarked">{{{marked emailContent}}}</div>
+    {{/if}}
+  {{/if}}
+</template>
+
+<template name="source">
+<p><a href="{{pathFor 'thread' _id=thread}}">back to thread</a></p>
+<p>receivedDate: {{receivedDate}}</p>
+<pre class="rfc822">{{source}}</pre>
+</template>

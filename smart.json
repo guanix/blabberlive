@@ -1,0 +1,10 @@
+{
+  "packages": {
+    "collection-api": {},
+    "pagemaster": {},
+    "jqueryui": {},
+    "iron-router": {},
+    "marked": {},
+    "momentjs": {}
+  }
+}

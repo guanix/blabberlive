@@ -1,0 +1,75 @@
+/* CSS declarations go here */
+
+body {
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 22px;
+}
+
+table {
+	line-height: 18px;
+}
+
+th {
+	text-align: left;
+}
+
+tbody tr {
+	max-height: 18px;
+}
+
+td.date {
+	white-space: nowrap;
+	height: 18px;
+	max-height: 18px;
+	padding-right: 3px;
+}
+
+td.from {
+	white-space: nowrap;
+	width: 9em;
+	max-width: 9em;
+	height: 18px;
+	max-height: 18px;
+	overflow: hidden;
+	padding-right: 5px;
+}
+
+div.subject {
+	height: 18px;
+	max-height: 18px;
+	overflow: hidden;
+}
+
+td.threadCount {
+	white-space: nowrap;
+}
+
+.ui-tooltip {
+	font-size: 14px;
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+}
+
+pre.rfc822 {
+	font-size: 12px;
+	line-height: 16px;
+	width: 100%;
+	overflow: scroll;
+}
+
+.replyParseError {
+	color: red;
+}
+
+.emailReplyMarked {
+	width: 100%;
+	overflow: scroll;
+}
+
+a.viewSourceLink {
+	font-size: 80%;
+}
+
+.messageHeader {
+	background-color: #f2f2ff;
+}
