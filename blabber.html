@@ -44,12 +44,20 @@
 {{#each messages}}
   {{> message}}
 {{/each}}
+
+{{#if mayPost}}
+<form id="replyForm">
+  <p>You may post as {{mayPost}}.</p>
+  <p><textarea name="replyBody" id="replyBody"></textarea></p>
+  <p><input type="submit" value="Reply"></p>
+</form>
+{{/if}}
 </template>
 
 <template name="message">
 <div class="messageHeader">
   From: <span title="{{fromEmail}}">{{fromName}}</span><br>
-  Date: {{formatLongDate receivedDate}} <a class="viewSourceLink" href="{{pathFor   'source' _id=_id}}">source</a>
+  Date: {{formatLongDate receivedDate}} <a class="viewSourceLink" href="{{pathFor   'source'}}">source</a>
 </div>
   {{#if flags.bodyParseError}}
     <p>Body parse error:</p>
@@ -65,7 +73,29 @@
 </template>
 
 <template name="source">
-<p><a href="{{pathFor 'thread' _id=thread}}">back to thread</a></p>
+<p><a href="/thread/{{thread}}">back to thread</a></p>
 <p>receivedDate: {{receivedDate}}</p>
 <pre class="rfc822">{{source}}</pre>
+</template>
+
+<template name="auth">
+<h1>Blabber</h1>
+<h2>Email authentication</h2>
+<p>
+Authenticate here to reply to threads directly from this site.
+If you are not already <a
+href="https://list.hackmanhattan.com/listinfo/blabber">subscribed
+to the list</a>, your message may be held for moderation.
+Authenticate by entering your email address. We will send a confirmation email
+with a link that you must click on. After that, you will be authenticated
+as long as you use the same browser and do not clear your cookies.
+</p>
+<form id="authForm">
+Email address:
+<input id="authEmail" size="40"> <input type="submit" value="Submit">
+</form>
+</template>
+
+<template name="auth2">
+<p id="message"></p>
 </template>

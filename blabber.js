@@ -3,6 +3,31 @@ Messages = new Meteor.Collection('messages');
 Router.map(function () {
   var monthAgo = moment().subtract('months', 1);
 
+  this.route('auth', {
+    path: '/auth'
+  });
+
+  this.route('auth2', {
+    path: '/auth2',
+    before: function () {
+      console.log(this.params.email);
+      Meteor.call('authenticate2', this.params.email, this.params.nonce, this.params.hash,
+        function (err, res) {
+        if (err) {
+          $('#message').text('Error: ' + err);
+          return;
+        }
+
+        console.log(res);
+
+        // Store our credentials
+        amplify.store('blabberlive', res);
+//        console.log(amplify);
+        $('#message').html('Thank you. You should now be able to post from this site. <a href="/">Go back</a>.');
+      });
+    }
+  });
+
   this.route('home', {
     path: '/',
     before: function () {
@@ -21,6 +46,14 @@ Router.map(function () {
   this.route('thread', {
     path: '/thread/:_id',
     before: function () {
+      Meteor.call('authorize', amplify.store('blabberlive'), function (err, res) {
+        if (err) {
+          console.log('authorize error: ' + err);
+          Session.set('mayPost', false);
+          return;
+        }
+        Session.set('mayPost', res);
+      });
       this.subscribe('threadMessages', this.params._id).wait();
       this.subscribe('threadRoots').wait();
     },
@@ -31,7 +64,8 @@ Router.map(function () {
       return {
         parentMessage: parentMessage,
         messages: messages,
-        messageCount: messages.count()
+        messageCount: messages.count(),
+        parent: parent
       };
     }
   });
@@ -44,7 +78,7 @@ Router.map(function () {
     data: function () {
       return Messages.findOne({_id: this.params._id});
     }
-  })
+  });
 });
 
 if (Meteor.isClient) {
@@ -61,6 +95,78 @@ if (Meteor.isClient) {
       }
     });
   });
+
+  Template.auth.events({
+    'submit': function () {
+      var emailField = $('input#authEmail');
+      var submitField = $('form#authForm input[type="submit"]');
+      var email = emailField.val();
+      if (!email) {
+        return false;
+      }
+
+      // Generate URL for the email
+      // It's easier in the browser
+      var url = window.location.protocol + '//'
+        + window.location.host;
+
+      Meteor.call('authenticate', email, url, function (err, res) {
+        if (err) {
+          console.log("error: " + err);
+          emailField.prop('disabled', false);
+          submitField.prop('disabled', false);
+          return;
+        }
+        emailField.val('Please check your inbox (' + email + ')');
+      });
+      emailField.prop('disabled', true);
+      submitField.prop('disabled', true);
+
+      return false;
+    }
+  });
+
+  Template.thread.events({
+    'submit form#replyForm': function () {
+      var bodyField = $('form#replyForm textarea#replyBody');
+      var submitButton = $('form#replyForm input[type="submit"]');
+
+      var body = bodyField.val();
+
+      if (!body) {
+        return false;
+      }
+
+      bodyField.prop('disabled', true);
+      submitButton.prop('disabled', true);
+      submitButton.val('Replying…');
+
+      Meteor.call('reply', amplify.store('blabberlive'),
+        this.parent, body, function (err, res) {
+          if (err) {
+            console.log('reply error: ' + err);
+            bodyField.prop('disabled', false);
+            submitButton.prop('disabled', false);
+            return false;
+          }
+
+          bodyField.val('');
+          submitButton.val('Reply');
+          bodyField.prop('disabled', false);
+          submitButton.prop('disabled', false);
+      });
+
+      return false;
+    }
+  });
+
+  Template.thread.mayPost = function () {
+    return Session.get('mayPost');
+  }
+
+  Template.thread.mayPostEmail = function () {
+    return Session.set('mayPostEmail');
+  }
 
   Handlebars.registerHelper('formatDate', function (date) {
     return moment(date).format('MM/DD HH:mm');
@@ -84,6 +190,7 @@ if (Meteor.isClient) {
   Handlebars.registerHelper('marked', function (md) {
     return marked(md);
   });
+
 }
 
 if (Meteor.isServer) {
@@ -231,5 +338,92 @@ if (Meteor.isServer) {
     });
 
     collectionApi.start();
+  });
+
+  var CryptoJS = Meteor.require('crypto-js');
+
+  function authHelper(auth) {
+    if (!auth || !auth.email) { return false; }
+
+    var msg = auth.nonce + ":" + auth.email;
+    var sign_secret = process.env.SIGN_SECRET || "HM sign secret";
+    var hash = CryptoJS.HmacSHA256(msg, sign_secret);
+
+    if (hash == auth.hash) {
+      return auth.email;
+    } else {
+      return false;
+    }
+  }
+
+  Meteor.methods({
+    authenticate: function (email, urlStub) {
+      var auth_secret = process.env.AUTH_SECRET || 'HM auth secret';
+      console.log("we are asked to authenticate " + email);
+      var nonce = CryptoJS.lib.WordArray.random(32);
+      var msg = nonce + ":" + email;
+      var hash = CryptoJS.HmacSHA256(msg, auth_secret);
+      console.log("nonce: " + nonce);
+      console.log("msg: " + msg);
+      console.log("hash: " + hash);
+      console.log(url);
+
+      console.log(email);
+
+      var url = urlStub + '/auth2?email=' + encodeURI(email)
+        + '&nonce=' + nonce + '&hash=' + hash;
+      console.log(url);
+
+      Email.send({
+        from: 'guan@hackmanhattan.com',
+        to: email,
+        subject: "Blabber Live: authenticate",
+        text: "Please click this link to authenticate on the Blabber Live server:\n\n" +
+          url
+      });
+
+      return true;
+    },
+    authenticate2: function (email, nonce, hash) {
+      var sign_secret = process.env.SIGN_SECRET || 'HM sign secret';
+      var nonce = CryptoJS.lib.WordArray.random(32);
+      var msg = nonce + ":" + email;
+      var hash = CryptoJS.HmacSHA256(msg, sign_secret);
+      return {
+        email: email,
+        nonce: nonce.toString(),
+        hash: hash.toString()
+      };
+    },
+    authorize: authHelper,
+    reply: function (auth, thread, body) {
+      var email = authHelper(auth);
+      if (!email) {
+        console.log('not authorized to post');
+        return false;
+      }
+
+      if (!thread || !body) {
+        console.log('not enough data');
+        return false;
+      }
+
+      console.log("will post as " + email);
+      console.log("thread: " + thread);
+      console.log("body: " + body);
+
+      var parent = Messages.findOne({_id: thread, parent: null});
+      console.log('subject: ' + parent.subject);
+
+      Email.send({
+        from: email,
+        to: 'blabber@list.hackmanhattan.com',
+        subject: 'Re: ' + parent.subject,
+        text: body,
+        headers: { 'References': thread },
+      });
+
+      return true;
+    }
   });
 }

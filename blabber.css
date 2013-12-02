@@ -73,3 +73,13 @@ a.viewSourceLink {
 .messageHeader {
 	background-color: #f2f2ff;
 }
+
+form#replyForm {
+	background-color: #f2f2ff;
+}
+
+form#replyForm textarea {
+	width: 50em;
+	max-width: 95%;
+	height: 10em;
+}

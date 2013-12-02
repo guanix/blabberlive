@@ -5,6 +5,7 @@
     "jqueryui": {},
     "iron-router": {},
     "marked": {},
-    "momentjs": {}
+    "momentjs": {},
+    "npm": {}
   }
 }

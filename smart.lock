@@ -7,7 +7,8 @@
       "jqueryui": {},
       "iron-router": {},
       "marked": {},
-      "momentjs": {}
+      "momentjs": {},
+      "npm": {}
     },
     "packages": {
       "collection-api": {
@@ -39,6 +40,11 @@
         "git": "https://github.com/crapthings/meteor-momentjs.git",
         "tag": "v2.1.0.2",
         "commit": "59a762e297082eea8b8cae00374c2b7ac6f89529"
+      },
+      "npm": {
+        "git": "https://github.com/arunoda/meteor-npm.git",
+        "tag": "v0.2.6",
+        "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
       }
     }
   }
