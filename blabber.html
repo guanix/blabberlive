@@ -28,7 +28,7 @@
   {{#each threads}}
   <tr>
     <td class="date">{{formatDate threadLastDate}}</td>
-    <td class="from" title="{{threadLastMessage.fromEmail}}">{{threadLastMessage.fromName}}</td>
+    <td class="from" title="{{threadLastMessage.fromEmail}}">{{#if threadLastMessage.fromName}}{{threadLastMessage.fromName}}{{else}}{{threadLastMessage.fromEmail}}{{/if}}</td>
     <td class="threadCount">[{{threadCount children}}]</td>
     <td><div class="subject"><a href="{{pathFor 'thread'}}">{{subject}}</a></div></td>
   </tr>
@@ -56,7 +56,7 @@
 
 <template name="message">
 <div class="messageHeader">
-  From: <span title="{{fromEmail}}">{{fromName}}</span><br>
+  From: <span title="{{fromEmail}}">{{#if fromName}}{{fromName}}{{else}}{{fromEmail}}{{/if}}</span><br>
   Date: {{formatLongDate receivedDate}} <a class="viewSourceLink" href="{{pathFor   'source'}}">source</a>
 </div>
   {{#if flags.bodyParseError}}
