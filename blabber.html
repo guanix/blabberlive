@@ -12,7 +12,7 @@
   Consider using a
   <a href="https://www.mail-archive.com/blabber@list.hackmanhattan.com/">different</a>
   <a href="https://list.hackmanhattan.com/pipermail/blabber/">archive</a> to find
-  older stuff. You can also <a href="https://list.hackmanhattan.com/listinfo/blabber">subscribe to emails</a>.
+  older stuff. You can also <a href="https://list.hackmanhattan.com/listinfo/blabber">subscribe to emails</a>. You may also <a href="/auth">authenticate to post from here</a>.
 </p>
 
 <table>
@@ -47,7 +47,7 @@
 
 {{#if mayPost}}
 <form id="replyForm">
-  <p>You may post as {{mayPost}}.</p>
+  <p>You may post as {{mayPost.name}} ({{mayPost.email}}).</p>
   <p><textarea name="replyBody" id="replyBody"></textarea></p>
   <p><input type="submit" value="Reply"></p>
 </form>
@@ -91,8 +91,12 @@ with a link that you must click on. After that, you will be authenticated
 as long as you use the same browser and do not clear your cookies.
 </p>
 <form id="authForm">
+<p>Name:
+<input id="authName" size="40"></p>
+<p>
 Email address:
-<input id="authEmail" size="40"> <input type="submit" value="Submit">
+<input id="authEmail" size="40">
+</p><input type="submit" value="Submit">
 </form>
 </template>
 

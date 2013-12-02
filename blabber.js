@@ -11,7 +11,7 @@ Router.map(function () {
     path: '/auth2',
     before: function () {
       console.log(this.params.email);
-      Meteor.call('authenticate2', this.params.email, this.params.nonce, this.params.hash,
+      Meteor.call('authenticate2', this.params.name, this.params.email, this.params.nonce, this.params.hash,
         function (err, res) {
         if (err) {
           $('#message').text('Error: ' + err);
@@ -49,7 +49,7 @@ Router.map(function () {
       Meteor.call('authorize', amplify.store('blabberlive'), function (err, res) {
         if (err) {
           console.log('authorize error: ' + err);
-          Session.set('mayPost', false);
+          Session.set('mayPost', null);
           return;
         }
         Session.set('mayPost', res);
@@ -101,7 +101,9 @@ if (Meteor.isClient) {
       var emailField = $('input#authEmail');
       var submitField = $('form#authForm input[type="submit"]');
       var email = emailField.val();
-      if (!email) {
+      var nameField = $('input#authName');
+      var name = nameField.val()
+      if (!email || !name) {
         return false;
       }
 
@@ -110,15 +112,17 @@ if (Meteor.isClient) {
       var url = window.location.protocol + '//'
         + window.location.host;
 
-      Meteor.call('authenticate', email, url, function (err, res) {
+      Meteor.call('authenticate', name, email, url, function (err, res) {
         if (err) {
           console.log("error: " + err);
+          nameField.prop('disabled', false);
           emailField.prop('disabled', false);
           submitField.prop('disabled', false);
           return;
         }
         emailField.val('Please check your inbox (' + email + ')');
       });
+      nameField.prop('disabled', true);
       emailField.prop('disabled', true);
       submitField.prop('disabled', true);
 
@@ -343,25 +347,26 @@ if (Meteor.isServer) {
   var CryptoJS = Meteor.require('crypto-js');
 
   function authHelper(auth) {
-    if (!auth || !auth.email) { return false; }
+    if (!auth || !auth.email || !auth.name) { return false; }
 
-    var msg = auth.nonce + ":" + auth.email;
+    var msg = auth.nonce + ":" + auth.email + ":" + auth.name;
     var sign_secret = process.env.SIGN_SECRET || "HM sign secret";
     var hash = CryptoJS.HmacSHA256(msg, sign_secret);
 
     if (hash == auth.hash) {
-      return auth.email;
+      auth.mayPost = true;
+      return auth;
     } else {
-      return false;
+      return null;
     }
   }
 
   Meteor.methods({
-    authenticate: function (email, urlStub) {
+    authenticate: function (name, email, urlStub) {
       var auth_secret = process.env.AUTH_SECRET || 'HM auth secret';
       console.log("we are asked to authenticate " + email);
       var nonce = CryptoJS.lib.WordArray.random(32);
-      var msg = nonce + ":" + email;
+      var msg = nonce + ":" + email + ":" + name;
       var hash = CryptoJS.HmacSHA256(msg, auth_secret);
       console.log("nonce: " + nonce);
       console.log("msg: " + msg);
@@ -371,12 +376,12 @@ if (Meteor.isServer) {
       console.log(email);
 
       var url = urlStub + '/auth2?email=' + encodeURI(email)
-        + '&nonce=' + nonce + '&hash=' + hash;
+        + '&nonce=' + nonce + '&hash=' + hash + '&name=' + encodeURI(name);
       console.log(url);
 
       Email.send({
         from: 'guan@hackmanhattan.com',
-        to: email,
+        to: name + ' <' + email + '>',
         subject: "Blabber Live: authenticate",
         text: "Please click this link to authenticate on the Blabber Live server:\n\n" +
           url
@@ -384,21 +389,22 @@ if (Meteor.isServer) {
 
       return true;
     },
-    authenticate2: function (email, nonce, hash) {
+    authenticate2: function (name, email, nonce, hash) {
       var sign_secret = process.env.SIGN_SECRET || 'HM sign secret';
       var nonce = CryptoJS.lib.WordArray.random(32);
-      var msg = nonce + ":" + email;
+      var msg = nonce + ":" + email + ":" + name;
       var hash = CryptoJS.HmacSHA256(msg, sign_secret);
       return {
         email: email,
+        name: name,
         nonce: nonce.toString(),
         hash: hash.toString()
       };
     },
     authorize: authHelper,
     reply: function (auth, thread, body) {
-      var email = authHelper(auth);
-      if (!email) {
+      var authres = authHelper(auth);
+      if (!authres || !authres.mayPost) {
         console.log('not authorized to post');
         return false;
       }
@@ -408,7 +414,7 @@ if (Meteor.isServer) {
         return false;
       }
 
-      console.log("will post as " + email);
+      console.log("will post as " + auth.name + " <" + auth.email + ">");
       console.log("thread: " + thread);
       console.log("body: " + body);
 
@@ -416,11 +422,14 @@ if (Meteor.isServer) {
       console.log('subject: ' + parent.subject);
 
       Email.send({
-        from: email,
+        from: auth.name + " <" + auth.email + ">",
         to: 'blabber@list.hackmanhattan.com',
         subject: 'Re: ' + parent.subject,
         text: body,
-        headers: { 'References': thread },
+        headers: {
+          'References': thread,
+          'X-Mailer': 'blabberlive/0.1'
+        },
       });
 
       return true;
