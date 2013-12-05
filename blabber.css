@@ -35,6 +35,20 @@ td.from {
 	padding-right: 5px;
 }
 
+@media all and (max-width: 599px) {
+	td.from {
+		width: 5em;
+		max-width: 5em;
+	}
+}
+
+@media all and (min-width: 800px) {
+	td.from {
+		width: 12em;
+		max-width: 12em;
+	}
+}
+
 div.subject {
 	height: 18px;
 	max-height: 18px;
