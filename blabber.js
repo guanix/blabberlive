@@ -164,7 +164,52 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.home.events({
+    'click #postDiv > p': function () {
+      $('#postForm').toggle(100);
+    },
+    'submit form#postForm': function () {
+      console.log('submitted');
+      var subjectField = $('form#postForm input#postSubject');
+      var bodyField = $('form#postForm textarea#postBody');
+      var submitButton = $('form#postForm input[type="submit"]');
+
+      var subject = subjectField.val();
+      var body = bodyField.val();
+
+      if (!subject || !body) {
+        return false;
+      }
+
+      subjectField.prop('disabled', true);
+      bodyField.prop('disabled', true);
+      submitButton.prop('disabled', true);
+      submitButton.val('Posting…');
+
+      Meteor.call('post', amplify.store('blabberlive'),
+        subject, body, function (err, res) {
+          if (err) {
+            console.log('reply error: ' + err);
+            bodyField.prop('disabled', false);
+            submitButton.prop('disabled', false);
+            return false;
+          }
+
+          bodyField.val('');
+          submitButton.val('Post');
+          bodyField.prop('disabled', false);
+          submitButton.prop('disabled', false);
+      });
+
+      return false;
+    }
+  });
+
   Template.thread.mayPost = function () {
+    return Session.get('mayPost');
+  }
+
+  Template.home.mayPost = function () {
     return Session.get('mayPost');
   }
 
@@ -428,6 +473,34 @@ if (Meteor.isServer) {
         text: body,
         headers: {
           'References': thread,
+          'X-Mailer': 'blabberlive/0.1'
+        },
+      });
+
+      return true;
+    },
+    post: function (auth, subject, body) {
+      var authres = authHelper(auth);
+      if (!authres || !authres.mayPost) {
+        console.log('not authorized to post');
+        return false;
+      }
+
+      if (!subject || !body) {
+        console.log('not enough data');
+        return false;
+      }
+
+      console.log("will post as " + auth.name + " <" + auth.email + ">");
+      console.log("subject: " + subject);
+      console.log("body: " + body);
+
+      Email.send({
+        from: auth.name + " <" + auth.email + ">",
+        to: 'blabber@list.hackmanhattan.com',
+        subject: subject,
+        text: body,
+        headers: {
           'X-Mailer': 'blabberlive/0.1'
         },
       });

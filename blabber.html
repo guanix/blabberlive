@@ -4,23 +4,39 @@
 </head>
 
 <template name="home">
+<div><img src="/hm.png" class="hmlogo"></div>
+
 <h1>Blabber</h1>
 
 <p>
-  Keep up to date with the latest discussion
-  on Blabber. Only threads with activity within the last month are shown.
+  <b>Blabber</b> is Hack Manhattan’s main email discussion list. A lot of people are too busy to shop up every Tuesday to our open house. Most of the community activity happens here. It is the best place to introduce yourself, ask questions, send cool links and engage in off topic banter.
 </p>
 
 <p>
-[
+  Blabber uses the <a href="http://list.org/">Mailman</a> mailing list management software and most users use it by emailing <a href="mailto:blabber@list.hackmanhattan.com">blabber@list.hackmanhattan.com</a> and <a href="https://list.hackmanhattan.com/listinfo/blabber">subscribe to receive all messages</a> sent to the list. That can be overwhelming for people who don’t have email filters set up.
+</p>
+
+<p>
 Other archives:
 <a href="https://www.mail-archive.com/blabber@list.hackmanhattan.com/">The Mail Archive</a>
 ·
 <a href="https://list.hackmanhattan.com/pipermail/blabber/">Pipermail</a> 
 |
-<a href="https://list.hackmanhattan.com/listinfo/blabber">Subscribe to emails</a> | <a href="/auth">Authenticate to post from here</a>
-]
+<a href="https://list.hackmanhattan.com/listinfo/blabber">Subscribe to emails</a>
 </p>
+
+<div id="postDiv">
+{{#if mayPost}}
+<p>You may post as {{mayPost.name}} ({{mayPost.email}}).</p>
+<form id="postForm">
+  <p>Subject: <input type="text" id="postSubject"></p>
+  <p><textarea name="postBody" id="postBody"></textarea></p>
+  <p><input type="submit" value="Post"></p>
+</form>
+{{else}}
+<p>You may <a href="/auth">authenticate to post from here</a>.</p>
+{{/if}}
+</div>
 
 <table>
 <thead>
