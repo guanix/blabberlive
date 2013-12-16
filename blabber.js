@@ -32,6 +32,14 @@ Router.map(function () {
     path: '/',
     before: function () {
       this.subscribe('threadRoots').wait();
+      Meteor.call('authorize', amplify.store('blabberlive'), function (err, res) {
+        if (err) {
+          console.log('authorize error: ' + err);
+          Session.set('mayPost', null);
+          return;
+        }
+        Session.set('mayPost', res);
+      });
     },
     data: function () {
       return {
@@ -195,10 +203,12 @@ if (Meteor.isClient) {
             return false;
           }
 
+          subjectField.val('');
           bodyField.val('');
           submitButton.val('Post');
           bodyField.prop('disabled', false);
           submitButton.prop('disabled', false);
+          $('#postForm').hide(100);
       });
 
       return false;
