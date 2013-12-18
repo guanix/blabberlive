@@ -32,6 +32,7 @@ Other archives:
   <p>Subject: <input type="text" id="postSubject"></p>
   <p><textarea name="postBody" id="postBody"></textarea></p>
   <p><input type="submit" value="Post"></p>
+  <p class="small">Messages posted here are still routed through Mailman, so they may take a few seconds to appear. Messages held for moderation may take even longer to appear.</p>
 </form>
 {{else}}
 <p>You may <a href="/auth">authenticate to post from here</a>.</p>
@@ -73,6 +74,7 @@ Other archives:
   <p>You may post as {{mayPost.name}} ({{mayPost.email}}).</p>
   <p><textarea name="replyBody" id="replyBody"></textarea></p>
   <p><input type="submit" value="Reply"></p>
+  <p class="small">Messages posted here are still routed through Mailman, so they may take a few seconds to appear. Messages held for moderation may take even longer to appear.</p>
 </form>
 {{/if}}
 </template>

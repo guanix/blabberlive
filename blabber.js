@@ -206,6 +206,7 @@ if (Meteor.isClient) {
           subjectField.val('');
           bodyField.val('');
           submitButton.val('Post');
+          subjectField.prop('disabled', false);
           bodyField.prop('disabled', false);
           submitButton.prop('disabled', false);
           $('#postForm').hide(100);

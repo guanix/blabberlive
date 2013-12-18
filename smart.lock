@@ -4,11 +4,11 @@
     "basePackages": {
       "collection-api": {},
       "pagemaster": {},
-      "jqueryui": {},
       "iron-router": {},
       "marked": {},
       "momentjs": {},
-      "npm": {}
+      "npm": {},
+      "jqueryui": {}
     },
     "packages": {
       "collection-api": {
@@ -20,11 +20,6 @@
         "git": "http://github.com/sterlingwes/meteor-pagemaster",
         "tag": "v0.5.7",
         "commit": "5e0b18dba69e4818f6c72e7cb6542c8bb41b7f99"
-      },
-      "jqueryui": {
-        "git": "https://github.com/mizzao/meteor-jqueryui.git",
-        "tag": "v1.10.3",
-        "commit": "c1c44a17c2e2d92e206dc4ecbaad0b83272de85c"
       },
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
@@ -45,6 +40,16 @@
         "git": "https://github.com/arunoda/meteor-npm.git",
         "tag": "v0.2.6",
         "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
+      },
+      "jqueryui": {
+        "git": "https://github.com/mizzao/meteor-jqueryui.git",
+        "tag": "v1.10.3r2",
+        "commit": "d54f75cfad37ff8ce6ef9ad49de55738ba921af7"
+      },
+      "build-fetcher": {
+        "git": "https://github.com/mizzao/meteor-build-fetcher.git",
+        "tag": "v0.1.0",
+        "commit": "e3813b1fc7f5c576e8e1fa4c51ae6f4687780a35"
       }
     }
   }

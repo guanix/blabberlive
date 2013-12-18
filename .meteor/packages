@@ -8,10 +8,10 @@ preserve-inputs
 collection-api
 jquery
 pagemaster
-jqueryui
 iron-router
 marked
 momentjs
 amplify
 npm
 email
+jqueryui
