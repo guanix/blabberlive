@@ -1,7 +1,7 @@
 Messages = new Meteor.Collection('messages');
 
 Router.map(function () {
-  var monthAgo = moment().subtract('months', 1);
+  var monthAgo = moment().subtract('weeks', 2);
 
   this.route('auth', {
     path: '/auth'
@@ -9,7 +9,7 @@ Router.map(function () {
 
   this.route('auth2', {
     path: '/auth2',
-    before: function () {
+    onBeforeAction: function () {
       console.log(this.params.email);
       Meteor.call('authenticate2', this.params.name, this.params.email, this.params.nonce, this.params.hash,
         function (err, res) {
@@ -30,7 +30,7 @@ Router.map(function () {
 
   this.route('home', {
     path: '/',
-    before: function () {
+    onBeforeAction: function () {
       this.subscribe('threadRoots').wait();
       Meteor.call('authorize', amplify.store('blabberlive'), function (err, res) {
         if (err) {
@@ -53,7 +53,7 @@ Router.map(function () {
 
   this.route('thread', {
     path: '/thread/:_id',
-    before: function () {
+    onBeforeAction: function () {
       Meteor.call('authorize', amplify.store('blabberlive'), function (err, res) {
         if (err) {
           console.log('authorize error: ' + err);
@@ -80,7 +80,7 @@ Router.map(function () {
 
   this.route('source', {
     path: '/source/:_id',
-    before: function () {
+    onBeforeAction: function () {
       this.subscribe('messageById', this.params._id).wait();
     },
     data: function () {
