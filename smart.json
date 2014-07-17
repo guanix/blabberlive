@@ -6,6 +6,7 @@
     "marked": {},
     "momentjs": {},
     "npm": {},
-    "jqueryui": {}
+    "jqueryui": {},
+    "bootstrap-3": {}
   }
 }
