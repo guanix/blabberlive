@@ -1,7 +1,7 @@
 Messages = new Meteor.Collection('messages');
 
 Router.map(function () {
-  var monthAgo = moment().subtract('weeks', 2);
+  var monthAgo = moment().subtract('months', 1);
 
   this.route('auth', {
     path: '/auth'

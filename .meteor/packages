@@ -7,10 +7,10 @@ standard-app-packages
 collection-api
 jquery
 pagemaster
-iron-router
 marked
 momentjs
 amplify
 npm
 email
 jqueryui
+iron-router
